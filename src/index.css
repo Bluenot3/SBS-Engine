@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital@0;1&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* State-of-the-art ZEN Minimalist Aesthetic */
+  --color-bg-base: #FAFAFA;
+  --color-primary: #1A1A1A;
+  --color-sidebar: #FAFAFA;
+  --color-card: rgba(255, 255, 255, 0.4);
+  --color-accent: #0f172a;
+  
+  --color-text-main: #000000;
+  --color-text-muted: #737373;
+  --color-border-main: rgba(0, 0, 0, 0.08);
+  
+  --color-glass-surface: rgba(255, 255, 255, 0.65);
+  --color-glass-border: rgba(255, 255, 255, 1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.9);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Glass Utilities */
+@layer utilities {
+  .zen-glass {
+    background-color: var(--color-glass-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--color-glass-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  .zen-glass-heavy {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .zen-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-radius: 0;
+    padding: 12px 4px;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  
+  .zen-input:focus, .zen-input:focus-visible {
+    outline: none;
+    border-bottom: 1px solid rgba(0,0,0,1);
+    box-shadow: 0 1px 0 0 rgba(0,0,0,1);
+  }
+
+  .zen-input::-webkit-outer-spin-button,
+  .zen-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* Hide scrollbar for clean UI */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
