@@ -33,6 +33,13 @@ export interface ScoringCriteria {
   risk: number;
 }
 
+export interface MetricSavings {
+  laborHoursPerWeek: number;
+  dollarsPerYear: number;
+  emailsAutomatedPerWeek: number;
+  errorRateReduction: number;
+}
+
 export interface ArchitectureItem {
   title: string;
   description: string;
@@ -44,12 +51,15 @@ export interface ArchitectureItem {
   integrations: string[];
   humanInLoop: string;
   expectedValue: string;
+  metrics: MetricSavings;
+  implementationSteps: string[];
+  platforms: string[];
   scores: ScoringCriteria;
   valueScore: number;
   frictionScore: number;
   category: PrioritizationCategory;
-  complexity: number; // Keep for legacy
-  impact: number; // Keep for legacy
+  complexity: number; 
+  impact: number; 
 }
 
 export interface AgentDesign {

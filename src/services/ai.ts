@@ -3,23 +3,34 @@ import { BusinessContext, Playbook, ScoringCriteria } from "../types";
 
 let ai: GoogleGenAI | null = null;
 try {
-  ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY });
+  const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (process as any).env?.GEMINI_API_KEY;
+  if (apiKey) {
+    ai = new GoogleGenAI({ apiKey });
+  }
 } catch (e) {
   console.warn("Could not initialize Google Gen AI. Ensure GEMINI_API_KEY is set.");
 }
 
-const systemInstruction = `You are the Smart Business Solution Engine by ZEN AI Co. 
+const systemInstruction = `You are "ZEN Better", the world's most advanced business transformation architect. 
 You act as an elite business architect, operations strategist, automation engineer, and agent-orchestration designer. 
-Your purpose is to transform raw business information into operational intelligence, system maps, automation blueprints, agent ecosystems, playbooks, and implementation plans.
-Outputs must be McKinsey-grade, deeply customized, far-reaching, and realistic. 
-Avoid generic automation tips or "use Zapier" fluff. Provide nuanced diagnosis and role-aware logic.
+Your mission is to find every revenue leak, every manual hour wasted, and every structural redundancy, then design a state-of-the-art automation ecosystem.
+
+CORE DIRECTIVES:
+1. MAX GRANULARITY: Every automation or agent suggestion MUST include specific, quantified labor and dollar savings. 
+2. PLATFORM SPECIFICITY: Suggest real-world platforms (e.g., Make.com, Replicate, Pinecone, Retool, LangGraph, etc.) instead of generic "Automation Tool".
+3. DETAILED IMPLEMENTATION: Provide an array of implementationSteps for each automation.
+4. METRIC PRECISION: You must generate estimates for:
+   - laborHoursPerWeek: Number of human hours freed.
+   - dollarsPerYear: Estimated operational or revenue impact.
+   - emailsAutomatedPerWeek: Number of communications handled by agents.
+   - errorRateReduction: Percentage reduction in operational errors.
 
 CRITICAL SCORING INSTRUCTIONS:
-You must score every automation opportunity using our proprietary dual-axis matrix (Value vs Friction) out of 100 points each.
-Value Score Formula (1-100 total): (revenueImpact * 3) + (costReduction * 2) + (timeSavings * 2.5) + (cxImprovement * 1.5) + (strategicLeverage * 1) -> scaled to 100 max. Each metric evaluates from 1 to 10.
-Friction Score Formula (1-100 total): (complexity * 4) + ((10 - implementationEase) * 3) + (maintenanceBurden * 2) + (risk * 1) -> scaled to 100 max. Each metric evaluates from 1 to 10.
+- You must score every automation opportunity using our proprietary dual-axis matrix (Value vs Friction) out of 100 points each.
+- Value Score Formula (1-100 total): (revenueImpact * 3) + (costReduction * 2) + (timeSavings * 2.5) + (cxImprovement * 1.5) + (strategicLeverage * 1) -> scaled to 100 max. Each metric evaluates from 1 to 10.
+- Friction Score Formula (1-100 total): (complexity * 4) + ((10 - implementationEase) * 3) + (maintenanceBurden * 2) + (risk * 1) -> scaled to 100 max. Each metric evaluates from 1 to 10.
 
-Based on Total Value Score and Total Friction Score, categorize into ONE of four exact string literals:
+Output EXACTLY categorized string literals:
 - "Can do now" (Value > 60, Friction < 40)
 - "Requires infrastructure first" (Value > 60, Friction >= 40)
 - "Should do next" (Value <= 60, Friction < 40)
@@ -31,19 +42,16 @@ export async function generatePlaybook(context: BusinessContext): Promise<Playbo
     throw new Error("AI service is not configured.");
   }
 
-  const prompt = `Analyze the following business and generate a highly detailed operational intelligence playbook, including automation architectures and agent ecosystems.
+  const prompt = `Analyze the following business and generate a high-fidelity operational architecture for "ZEN Better".
 
 BUSINESS CONTEXT:
-Name: ${context.name}
-Industry: ${context.industry}
-Scale: ${context.scale} (${context.locationCount} locations)
-Model: ${context.operatingModel}
-Current Tech Stack: ${context.currentStack}
-Pain Points/Bottlenecks: ${context.painPoints}
-Goals: ${context.goals}
-Budget Sensitivity: ${context.budgetSensitivity}
+${JSON.stringify(context, null, 2)}
 
-Generate a comprehensive JSON playbook outlining the Diagnosis, Automation Opportunities, Agent Architectures, Implementation Roadmap, and a Prioritization Matrix ensuring strict compliance with the scoring schema provided.`;
+Requirements:
+- Identify at least 5-8 high-impact automation opportunities.
+- Be extremely granular about the 'metrics' object for each automation.
+- Detail the implementation 'logic' and 'platforms' used.
+- Ensure the 'diagnosis' is a deep, strategic teardown of their current operational state.`;
 
   const response = await ai.models.generateContent({
     model: "gemini-3.1-pro-preview",
@@ -77,8 +85,20 @@ Generate a comprehensive JSON playbook outlining the Diagnosis, Automation Oppor
                 inputs: { type: Type.ARRAY, items: { type: Type.STRING } },
                 outputs: { type: Type.ARRAY, items: { type: Type.STRING } },
                 integrations: { type: Type.ARRAY, items: { type: Type.STRING } },
+                platforms: { type: Type.ARRAY, items: { type: Type.STRING } },
+                implementationSteps: { type: Type.ARRAY, items: { type: Type.STRING } },
                 humanInLoop: { type: Type.STRING },
                 expectedValue: { type: Type.STRING },
+                metrics: {
+                  type: Type.OBJECT,
+                  properties: {
+                    laborHoursPerWeek: { type: Type.NUMBER },
+                    dollarsPerYear: { type: Type.NUMBER },
+                    emailsAutomatedPerWeek: { type: Type.NUMBER },
+                    errorRateReduction: { type: Type.NUMBER }
+                  },
+                  required: ["laborHoursPerWeek", "dollarsPerYear", "emailsAutomatedPerWeek", "errorRateReduction"]
+                },
                 scores: {
                   type: Type.OBJECT,
                   properties: {
@@ -94,13 +114,13 @@ Generate a comprehensive JSON playbook outlining the Diagnosis, Automation Oppor
                   },
                   required: ["revenueImpact", "costReduction", "timeSavings", "cxImprovement", "strategicLeverage", "complexity", "implementationEase", "maintenanceBurden", "risk"]
                 },
-                valueScore: { type: Type.NUMBER, description: "Total Value Score (0-100)" },
-                frictionScore: { type: Type.NUMBER, description: "Total Friction Score (0-100)" },
+                valueScore: { type: Type.NUMBER },
+                frictionScore: { type: Type.NUMBER },
                 category: { type: Type.STRING, enum: ["Can do now", "Should do next", "Requires infrastructure first", "Not worth doing yet"] },
-                complexity: { type: Type.NUMBER, description: "Legacy fallback 1-10 scale" },
-                impact: { type: Type.NUMBER, description: "Legacy fallback 1-10 scale" }
+                complexity: { type: Type.NUMBER },
+                impact: { type: Type.NUMBER }
               },
-              required: ["title", "description", "impacts", "problemSolved", "triggers", "inputs", "outputs", "integrations", "humanInLoop", "expectedValue", "scores", "valueScore", "frictionScore", "category", "complexity", "impact"]
+              required: ["title", "description", "impacts", "problemSolved", "triggers", "inputs", "outputs", "integrations", "metrics", "platforms", "implementationSteps", "scores", "valueScore", "frictionScore", "category", "complexity", "impact"]
             }
           },
           agents: {

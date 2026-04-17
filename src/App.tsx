@@ -1,13 +1,77 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowRight, Cpu } from "lucide-react";
+import { ArrowRight, Cpu, MousePointer2 } from "lucide-react";
 import { BusinessContext, Playbook } from "./types";
 import { generatePlaybook } from "./services/ai";
 import { IntakeWizard } from "./modules/intake/IntakeWizard";
 import { Dashboard } from "./modules/dashboard/Dashboard";
+import { BackgroundParticles } from "./components/BackgroundParticles";
+import { Terminal, AnimatedSpan, TypingAnimation } from "./components/ui/terminal";
+
+function TerminalDemo() {
+  return (
+    <Terminal className="h-[420px] shadow-[0_0_50px_rgba(0,0,0,0.1)]">
+      <TypingAnimation>&gt; pnpm dlx shadcn@latest init</TypingAnimation>
+
+      <AnimatedSpan className="text-green-500" delay={0.5}>
+        ✔ Preflight checks.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={1}>
+        ✔ Verifying framework. Found Next.js.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={1.5}>
+        ✔ Validating Tailwind CSS.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={2}>
+        ✔ Validating import alias.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={2.5}>
+        ✔ Writing components.json.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={3}>
+        ✔ Checking registry.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={3.5}>
+        ✔ Updating tailwind.config.ts
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={4}>
+        ✔ Updating app/globals.css
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-green-500" delay={4.5}>
+        ✔ Installing dependencies.
+      </AnimatedSpan>
+
+      <AnimatedSpan className="text-blue-500" delay={5}>
+        <span>ℹ Updated 1 file:</span>
+        <span className="pl-2">- lib/utils.ts</span>
+      </AnimatedSpan>
+
+      <TypingAnimation className="text-white/60" delay={5.5}>
+        Success! Project initialization completed.
+      </TypingAnimation>
+
+      <TypingAnimation className="text-white/60" delay={6}>
+        You may now add components.
+      </TypingAnimation>
+    </Terminal>
+  );
+}
 
 export default function App() {
   const [appState, setAppState] = useState<"landing" | "intake" | "loading" | "dashboard">("landing");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
   const [businessContext, setBusinessContext] = useState<BusinessContext | null>(null);
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,51 +107,75 @@ export default function App() {
     };
     const demoPlaybook: Playbook = {
       diagnosis: {
-        executiveSummary: "Summit Marinas is experiencing significant operational drag due to fragmented local data silos. Centralizing billing and automating basic customer workflows could free up 900+ hours per week across the enterprise, directly accelerating revenue collection.",
-        currentPainPoints: ["Manual data entry across systems", "Slow unpaid fee collection", "No central executive visibility"],
-        structuralInefficiencies: ["Decentralized accounts receivable", "Duplicated tools at the site level", "High dependency on general managers for routine administration"],
-        scalingRisks: ["Inability to forecast cash flow accurately", "High staff turnover due to administrative burden", "Inconsistent customer experience across locations"]
+        executiveSummary: "Summit Marinas represents a high-entropy operational environment where decentralized management has led to severe revenue leakage (est. $450k+ annually). The architecture below seeks to move from manual GM-dependency to a centralized, agent-led infrastructure.",
+        currentPainPoints: ["Manual billing ingestion across 45 nodes", "Latency in accounts receivable (42-day average)", "Data fragmentation preventing corporate yield management"],
+        structuralInefficiencies: ["Decentralized AR requiring 900+ human hours/mo", "Manual guest communication for standard FAQs", "Spreadsheet-based location reporting"],
+        scalingRisks: ["Inability to absorb new location overhead", "Executive blindness to underperforming units", "High turnover in administrative roles"]
       },
       automations: [
         {
-          title: "Automated Collections Workflow",
-          description: "A centralized system that detects past-due slips and triggers a sequenced communication flow to boat owners before escalating to local managers.",
-          impacts: "Reduces receivable days by 40%, saves GM time",
-          problemSolved: "Slow unpaid fee collection at local level",
-          triggers: ["Invoice 5 days past due", "Invoice 15 days past due"],
-          inputs: ["Billing Data", "CRM contact"],
-          outputs: ["Automated SMS/Email", "Dashboard Flag for GM"],
-          integrations: ["Dockwa API", "Twilio", "QuickBooks"],
-          humanInLoop: "Local GM reviews escalations",
-          expectedValue: "$120k/yr cash flow acceleration",
-          scores: {
-             revenueImpact: 8, costReduction: 6, timeSavings: 9, cxImprovement: 7, strategicLeverage: 5, complexity: 5, implementationEase: 6, maintenanceBurden: 4, risk: 4
+          title: "Intelligent Revenue Extraction Engine",
+          description: "A multi-stage system that orchestrates collections using AI-driven urgency ranking.",
+          impacts: "Accelerates cash flow by 32%, eliminates manual chasing.",
+          problemSolved: "Slow revenue collection at scale.",
+          triggers: ["Invoice generated", "Payment window < 48hrs", "Past due > 1hr"],
+          inputs: ["Dockwa Revenue Stream", "QuickBooks Ledger"],
+          outputs: ["Personalized Payment Portal Link", "Urgent SMS/WhatsApp Alert"],
+          integrations: ["Dockwa API", "Twilio", "Stripe"],
+          platforms: ["Make.com", "Retool", "Twelve Labs"],
+          implementationSteps: [
+            "Map Dockwa API endpoints to central Retool DB",
+            "Configure sequenced communication logic in Make.com",
+            "Deploy auto-escalation triggers to Regional Directors"
+          ],
+          humanInLoop: "Approves disputes > $5,000",
+          expectedValue: "$210k/yr recovery boost",
+          metrics: {
+            laborHoursPerWeek: 45,
+            dollarsPerYear: 210000,
+            emailsAutomatedPerWeek: 850,
+            errorRateReduction: 98
           },
-          valueScore: 84,
-          frictionScore: 48,
+          scores: {
+             revenueImpact: 9, costReduction: 7, timeSavings: 10, cxImprovement: 6, strategicLeverage: 8, complexity: 6, implementationEase: 5, maintenanceBurden: 3, risk: 3
+          },
+          valueScore: 88,
+          frictionScore: 52,
           category: "Requires infrastructure first",
-          impact: 9,
-          complexity: 5
+          impact: 10,
+          complexity: 6
         },
         {
-          title: "Executive Rollup Dashboard",
-          description: "A central data pipeline that pulls daily occupancy and revenue metrics from all 45 locations into a single executive dashboard.",
-          impacts: "Improves corporate visibility and strategic deployment",
-          problemSolved: "No central corporate visibility",
-          triggers: ["Nightly sync script"],
-          inputs: ["Dockwa DB", "Local spreadsheets"],
-          outputs: ["PowerBI / Custom Dashboard view"],
-          integrations: ["Dockwa API", "Data Warehouse"],
-          humanInLoop: "None",
-          expectedValue: "Faster executive decision making",
-          scores: {
-             revenueImpact: 5, costReduction: 4, timeSavings: 7, cxImprovement: 3, strategicLeverage: 9, complexity: 6, implementationEase: 4, maintenanceBurden: 6, risk: 2
+          title: "Multi-Node Yield Optimizer",
+          description: "Real-time pricing adjustment engine based on local demand and occupancy trends.",
+          impacts: "Increases average slip rate by $12/day/node.",
+          problemSolved: "Flat-rate pricing in dynamic markets.",
+          triggers: ["Occupancy > 85%", "Local event detected", "Competitor price change"],
+          inputs: ["Local Demand Data", "Historical Occupancy"],
+          outputs: ["Dynamic Rate Update to Dockwa"],
+          integrations: ["Dockwa API", "Proprietary Scraper"],
+          platforms: ["Pinecone", "LangGraph", "Python / AWS Lambda"],
+          implementationSteps: [
+            "Initialize vector store with historical demand data",
+            "Deploy LangGraph agent to monitor external market signals",
+            "Automate rate pushes to slip management engines"
+          ],
+          humanInLoop: "Overrides if rate change > 25%",
+          expectedValue: "$340k/yr margin expansion",
+          metrics: {
+            laborHoursPerWeek: 15,
+            dollarsPerYear: 340000,
+            emailsAutomatedPerWeek: 0,
+            errorRateReduction: 92
           },
-          valueScore: 71,
-          frictionScore: 65,
+          scores: {
+             revenueImpact: 10, costReduction: 4, timeSavings: 5, cxImprovement: 4, strategicLeverage: 10, complexity: 9, implementationEase: 3, maintenanceBurden: 7, risk: 6
+          },
+          valueScore: 78,
+          frictionScore: 84,
           category: "Requires infrastructure first",
-          impact: 8,
-          complexity: 6
+          impact: 9,
+          complexity: 9
         }
       ],
       agents: [
@@ -146,9 +234,21 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-bg-base text-text-main font-sans flex overflow-hidden">
+    <div 
+      onMouseMove={handleMouseMove}
+      className="relative min-h-screen w-full bg-bg-base text-text-main font-sans flex overflow-hidden custom-scrollbar"
+    >
+      <BackgroundParticles />
       
-      {/* Liquid Glass Background Elements */}
+      {/* Interactive Ambient Glow */}
+      <motion.div 
+        animate={{
+          x: mousePos.x - 400,
+          y: mousePos.y - 400,
+        }}
+        transition={{ type: "spring", damping: 30, stiffness: 50, restDelta: 0.001 }}
+        className="fixed top-0 left-0 w-[800px] h-[800px] bg-black/[0.02] rounded-full blur-[120px] pointer-events-none -z-10"
+      />
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <motion.div
           animate={{ y: [0, -40, 0], opacity: [0.15, 0.3, 0.15] }}
@@ -163,10 +263,12 @@ export default function App() {
       </div>
 
       <nav className="fixed top-6 left-6 right-6 z-50 flex justify-between items-center px-8 py-4 rounded-full zen-glass transition-all hidden md:flex backdrop-blur-3xl">
-         <div className="font-serif text-[18px] font-medium tracking-wide flex items-center gap-3 cursor-pointer" onClick={reset}>
-           <div className="w-4 h-4 bg-black rounded-full" />
-           ZEN
-         </div>
+          <div className="font-serif text-[20px] font-medium tracking-tight flex items-center gap-3 cursor-pointer" onClick={reset}>
+            <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
+              <div className="w-1.5 h-1.5 bg-white rounded-full" />
+            </div>
+            ZEN Better
+          </div>
          <div className="flex items-center gap-6 text-[12px] font-medium uppercase tracking-[0.08em] opacity-60">
            <span className="hover:opacity-100 cursor-pointer transition-opacity" onClick={reset}>Intelligence</span>
            <span className="hover:opacity-100 cursor-pointer transition-opacity" onClick={() => appState === 'landing' ? loadDemo() : null}>Architecture</span>
@@ -203,71 +305,56 @@ export default function App() {
             >
               <div className="flex-1 space-y-10">
                 <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full zen-glass border-white/40 text-[11px] font-semibold uppercase tracking-[0.1em] text-black/60 shadow-sm">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full zen-glass border-white/40 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/60 shadow-sm">
                     <span className="w-1.5 h-1.5 rounded-full bg-black flex-shrink-0 animate-pulse"></span>
-                    Smart Business Solution Engine
+                    ZEN Better • Operational Intelligence
                   </div>
-                  <h1 className="text-5xl md:text-7xl font-serif text-black leading-[1.1] tracking-tight">
-                    Transform operations<br/><span className="italic opacity-60">into architecture.</span>
+                  <h1 className="text-6xl md:text-8xl font-serif text-black leading-[1.05] tracking-tight">
+                    Better operations.<br/><span className="italic opacity-30 font-light italic">Purely ZEN.</span>
                   </h1>
-                  <p className="text-lg md:text-xl text-black/50 max-w-xl leading-relaxed font-light">
-                    A high-trust business systems intelligence platform. Drop in your operational context, and we'll generate McKinsey-grade automation blueprints, agent ecosystems, and implementation roadmaps.
+                  <p className="text-lg md:text-xl text-black/40 max-w-xl leading-relaxed font-light">
+                    The nationally recognized architect for business transformation. We identify revenue leaks and synthesize granular, platform-specific automation ecosystems and agent-led roadmaps.
                   </p>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-5">
-                  <motion.button 
-                    onClick={startIntake}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="zen-btn-powerful px-8 py-5 rounded-full font-medium flex items-center justify-center gap-3 transition-shadow text-[15px] tracking-wide flex-1 sm:flex-none cursor-pointer"
+                <div className="flex flex-col sm:flex-row gap-5 relative z-40">
+                  <button 
+                    type="button"
+                    onClick={() => setAppState("intake")}
+                    className="zen-btn-powerful px-10 py-5 rounded-full font-medium flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 text-[16px] tracking-wide flex-1 sm:flex-none cursor-pointer relative group overflow-hidden shadow-2xl z-40"
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                        Start Diagnosis <ArrowRight className="w-5 h-5" />
+                        Initialize Architecture <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </span>
-                    <div className="btn-glimmer" />
-                  </motion.button>
-                  <motion.button 
+                    <div className="btn-glimmer pointer-events-none" />
+                  </button>
+                  <button 
+                    type="button"
                     onClick={loadDemo}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="zen-glass border border-black/10 text-black px-8 py-5 rounded-full font-medium hover:bg-white/40 transition-all text-[14px] tracking-wide flex-1 sm:flex-none flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
+                    className="zen-glass border border-black/10 text-black px-8 py-5 rounded-full font-medium hover:bg-white/40 hover:shadow-lg transition-all text-[15px] tracking-wide flex-1 sm:flex-none flex items-center justify-center cursor-pointer relative z-40 group"
                   >
                     View Demo Architecture
-                  </motion.button>
+                  </button>
                 </div>
               </div>
 
-              <div className="flex-1 w-full relative h-[500px]">
-                {/* Floating Zen UI Display */}
+              <div className="flex-1 w-full relative h-[500px] flex items-center justify-center">
                 <motion.div 
-                  animate={{ y: [-10, 10, -10] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 zen-glass-heavy shadow-2xl rounded-3xl p-10 flex flex-col justify-center"
+                   initial={{ opacity: 0, scale: 0.95 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   transition={{ duration: 1, delay: 0.5 }}
+                   className="w-full"
                 >
-                  <div className="flex items-center gap-4 mb-10 opacity-70">
-                    <Cpu className="w-6 h-6" />
-                    <span className="font-medium text-[11px] tracking-[0.1em] uppercase">Intelligence Matrix</span>
-                  </div>
-                  <div className="space-y-6">
-                    {[1,2,3].map((i) => (
-                       <div key={i} className="h-16 w-full zen-glass rounded-2xl flex items-center px-6 gap-6 relative overflow-hidden group">
-                         <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center">
-                           <div className="w-1.5 h-1.5 bg-black rounded-full" />
-                         </div>
-                         <div className="flex-1 space-y-2.5">
-                           <div className="h-1.5 w-1/3 bg-black/20 rounded-full"></div>
-                           <div className="h-1 w-1/4 bg-black/10 rounded-full"></div>
-                         </div>
-                         {/* Animated scanline */}
-                         <motion.div 
-                           className="absolute top-0 bottom-0 w-16 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
-                           animate={{ left: ["-100%", "200%"] }}
-                           transition={{ duration: 3, repeat: Infinity, delay: i * 0.4 }}
-                         />
-                       </div>
-                    ))}
-                  </div>
+                  <TerminalDemo />
+                </motion.div>
+                
+                {/* Floating Architectural Nodes */}
+                <motion.div 
+                  animate={{ y: [0, 20, 0], rotate: [0, 5, 0] }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-10 -right-10 w-24 h-24 bg-white/40 backdrop-blur-xl border border-black/5 rounded-3xl shadow-xl z-20 hidden xl:flex items-center justify-center hover:scale-110 transition-transform cursor-pointer group"
+                >
+                   <MousePointer2 className="w-8 h-8 opacity-20 group-hover:opacity-100 group-hover:text-emerald-500 transition-all" />
                 </motion.div>
               </div>
             </motion.div>

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { BusinessContext, Playbook, PrioritizationCategory } from "../../types";
-import { Map, Zap, Users, Calendar, Target, ShieldCheck, AlertCircle, Maximize2, ChevronDown } from "lucide-react";
+import { Map, Zap, Users, Calendar, Target, ShieldCheck, AlertCircle, Maximize2, ChevronDown, Clock, MousePointer, Mail, Globe } from "lucide-react";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis, ReferenceLine } from "recharts";
 import { ProcessVisualizer } from "../../components/ProcessVisualizer";
+import { OverviewSynopsis } from "./OverviewSynopsis";
 
 type DashboardProps = {
   playbook: Playbook;
@@ -99,97 +100,13 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
           {activeTab === "overview" && (
             <motion.div
               key="overview"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.4 }}
+              className="w-full"
             >
-              <div className="lg:col-span-2 space-y-6">
-                <div className="zen-glass-heavy rounded-3xl p-8 md:p-10 flex flex-col relative overflow-hidden group">
-                  <div className="absolute right-0 top-0 w-64 h-64 bg-gradient-to-bl from-blue-100/50 to-transparent blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-black/40 mb-6 flex justify-between items-center relative z-10">
-                    Diagnostic Synthesis
-                    <span className="text-emerald-600 flex items-center gap-2 font-medium bg-emerald-50 px-3 py-1 rounded-full"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Optimal</span>
-                  </div>
-                  <p className="text-black/80 font-light text-lg leading-relaxed relative z-10">{playbook.diagnosis.executiveSummary}</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="zen-glass rounded-3xl p-8 flex flex-col hover:-translate-y-1 transition-transform duration-500">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-black/40 mb-6 flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center">
-                        <AlertCircle className="w-3 h-3 text-red-500" />
-                      </div>
-                      Inefficiencies
-                    </div>
-                    <ul className="space-y-4">
-                      {playbook.diagnosis.structuralInefficiencies.map((item, i) => (
-                        <li key={i} className="flex gap-3 text-[14px] text-black/70 font-light leading-snug">
-                          <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 flex-shrink-0"></span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div className="zen-glass rounded-3xl p-8 flex flex-col hover:-translate-y-1 transition-transform duration-500">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-black/40 mb-6 flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full bg-amber-50 flex items-center justify-center">
-                        <Target className="w-3 h-3 text-amber-600" />
-                      </div>
-                      Risk Vectors
-                    </div>
-                    <ul className="space-y-4">
-                      {playbook.diagnosis.scalingRisks.map((item, i) => (
-                        <li key={i} className="flex gap-3 text-[14px] text-black/70 font-light leading-snug">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 flex-shrink-0"></span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="zen-glass rounded-3xl p-8 flex flex-col">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-black/40 mb-8">System Volumes</div>
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center border-b border-black/5 pb-4">
-                      <span className="text-[14px] font-light text-black/60">Automations Generated</span>
-                      <span className="text-3xl font-light text-black">{playbook.automations.length}</span>
-                    </div>
-                    <div className="flex justify-between items-center border-b border-black/5 pb-4">
-                      <span className="text-[14px] font-light text-black/60">Agent Topologies</span>
-                      <span className="text-3xl font-light text-black">{playbook.agents.length}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[14px] font-light text-black/60">Deployment Phasing</span>
-                      <span className="text-3xl font-light text-black">{playbook.roadmap.length}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="zen-glass-heavy rounded-3xl p-8 flex flex-col">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-black/40 mb-6">Scatter Analysis</div>
-                  <div className="h-64 w-full relative">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-blue-50/50 rounded-xl pointer-events-none"></div>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: -20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                        <XAxis type="number" dataKey="frictionScore" name="Friction" domain={[0, 100]} stroke="rgba(0,0,0,0.2)" tick={false} label={{ value: "Friction →", position: "bottom", offset: 0, fill: "rgba(0,0,0,0.4)", fontSize: 10, fontWeight: 600, textAnchor: "middle" }} />
-                        <YAxis type="number" dataKey="valueScore" name="Value" domain={[0, 100]} stroke="rgba(0,0,0,0.2)" tick={false} label={{ value: "Value ↑", angle: -90, position: "insideLeft", fill: "rgba(0,0,0,0.4)", fontSize: 10, fontWeight: 600, textAnchor: "middle" }} />
-                        <ZAxis type="number" range={[150, 150]} />
-                        <ReferenceLine x={50} stroke="rgba(0,0,0,0.1)" />
-                        <ReferenceLine y={50} stroke="rgba(0,0,0,0.1)" />
-                        <Tooltip cursor={{ strokeDasharray: '3 3', stroke: 'rgba(0,0,0,0.1)' }} content={<CustomTooltip />} />
-                        <Scatter data={chartData} fill="#000000" className="drop-shadow-md" />
-                      </ScatterChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
+              <OverviewSynopsis playbook={playbook} context={context} />
             </motion.div>
           )}
 
@@ -240,7 +157,54 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                     >
                       <div className="pt-8 border-t border-black/5 mt-6">
                         <div className="mb-10 w-full rounded-2xl overflow-hidden shadow-sm">
-                           <ProcessVisualizer architecture={auto} />
+                           <ProcessVisualizer automation={auto} />
+                        </div>
+
+                        {/* Granular Metrics Dashboard */}
+                        {auto.metrics && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                            {[
+                              { label: "Labor Impact", value: `${auto.metrics.laborHoursPerWeek}h/wk`, icon: Clock },
+                              { label: "Yield (Est)", value: `$${(auto.metrics.dollarsPerYear/1000).toFixed(0)}k/yr`, icon: Target },
+                              { label: "Agent Output", value: `${auto.metrics.emailsAutomatedPerWeek} comms`, icon: Mail },
+                              { label: "Error Reduction", value: `${auto.metrics.errorRateReduction}%`, icon: ShieldCheck }
+                            ].map((m, i) => (
+                              <div key={i} className="zen-glass p-5 rounded-3xl flex flex-col gap-2">
+                                <m.icon className="w-4 h-4 opacity-40 mb-1" />
+                                <span className="text-[10px] font-bold text-black/30 uppercase tracking-widest">{m.label}</span>
+                                <span className="text-xl font-medium text-black">{m.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Platform Badges */}
+                        <div className="mb-10 flex flex-wrap gap-3 items-center">
+                          <span className="text-[10px] font-bold text-black/30 uppercase tracking-widest mr-2">InfrastructureStack</span>
+                          {auto.platforms?.map((p, i) => (
+                            <div key={i} className="flex items-center gap-2 px-4 py-2 bg-black/5 rounded-full border border-black/5 hover:bg-black text-white hover:border-black transition-all group">
+                               <Globe className="w-3 h-3 opacity-30 group-hover:opacity-100" />
+                               <span className="text-[11px] font-medium transition-colors group-hover:text-white text-black/60">{p}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Deployment Roadmap */}
+                        <div className="mb-10 p-10 zen-glass-heavy rounded-[2.5rem] relative overflow-hidden group">
+                           <div className="absolute top-0 right-0 p-8 opacity-10">
+                              <Target className="w-24 h-24 rotate-12" />
+                           </div>
+                           <h4 className="text-[11px] font-bold text-black/40 uppercase tracking-[0.2em] mb-8">Implementation Sequence</h4>
+                           <div className="space-y-6">
+                              {auto.implementationSteps?.map((step, idx) => (
+                                <div key={idx} className="flex gap-6 items-start group/step">
+                                   <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-lg transition-transform group-hover/step:scale-110">
+                                      {idx + 1}
+                                   </div>
+                                   <p className="text-[14px] text-black/70 font-light leading-relaxed pt-1">{step}</p>
+                                </div>
+                              ))}
+                           </div>
                         </div>
 
                         {auto.valueScore && auto.frictionScore && (

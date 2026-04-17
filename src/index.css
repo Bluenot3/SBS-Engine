@@ -31,19 +31,26 @@ body {
 /* Custom Glass Utilities */
 @layer utilities {
   .zen-glass {
-    background-color: var(--color-glass-surface);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--color-glass-border);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
   
   .zen-glass-heavy {
-    background-color: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 1);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .zen-glass-slim {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .zen-input {
@@ -105,8 +112,31 @@ body {
   }
 }
 
-/* Hide scrollbar for clean UI */
-::-webkit-scrollbar {
-  width: 0px;
+/* Hide scrollbar for clean UI, but allow interaction */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Subtle Noise Texture for deeper immersion */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 9999;
 }
