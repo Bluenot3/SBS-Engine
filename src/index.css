@@ -66,6 +66,43 @@ body {
     -webkit-appearance: none;
     margin: 0;
   }
+
+  .zen-btn-powerful {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .zen-btn-powerful:hover {
+    box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .zen-btn-powerful:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  .btn-glimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: all 0.8s;
+  }
+
+  .zen-btn-powerful:hover .btn-glimmer {
+    left: 100%;
+  }
 }
 
 /* Hide scrollbar for clean UI */

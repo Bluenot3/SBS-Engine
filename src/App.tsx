@@ -216,18 +216,25 @@ export default function App() {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-5">
-                  <button 
+                  <motion.button 
                     onClick={startIntake}
-                    className="bg-black text-white px-8 py-5 rounded-full font-medium flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95 text-[15px] tracking-wide flex-1 sm:flex-none"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="zen-btn-powerful px-8 py-5 rounded-full font-medium flex items-center justify-center gap-3 transition-shadow text-[15px] tracking-wide flex-1 sm:flex-none cursor-pointer"
                   >
-                    Start Diagnosis <ArrowRight className="w-5 h-5" />
-                  </button>
-                  <button 
+                    <span className="relative z-10 flex items-center gap-2">
+                        Start Diagnosis <ArrowRight className="w-5 h-5" />
+                    </span>
+                    <div className="btn-glimmer" />
+                  </motion.button>
+                  <motion.button 
                     onClick={loadDemo}
-                    className="zen-glass border border-black/10 text-black px-8 py-5 rounded-full font-medium hover:bg-black/5 transition-colors text-[14px] tracking-wide flex-1 sm:flex-none flex items-center justify-center"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="zen-glass border border-black/10 text-black px-8 py-5 rounded-full font-medium hover:bg-white/40 transition-all text-[14px] tracking-wide flex-1 sm:flex-none flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
                   >
                     View Demo Architecture
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
