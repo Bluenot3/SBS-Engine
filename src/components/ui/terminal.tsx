@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Children } from "react";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
 
@@ -29,7 +29,14 @@ export const Terminal = ({ children, className, title = "zen@better: ~" }: Termi
       
       {/* Terminal Body */}
       <div className="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-2">
-        {children}
+        {Children.map(children, (child, index) => {
+          if (React.isValidElement(child)) {
+             return React.cloneElement(child as React.ReactElement<any>, {
+                delay: (child.props.delay ?? 0) + index * 0.3
+             });
+          }
+          return child;
+        })}
       </div>
     </div>
   );

@@ -56,13 +56,14 @@ BUSINESS CONTEXT:
 ${JSON.stringify(context, null, 2)}
 
 Requirements:
-- Identify 5-8 high-impact automation opportunities with extreme precision.
+- Identify 3-4 high-impact automation opportunities with extreme precision.
 - Provide mathematically sound long-term forecasting (10-year scale) and ROI.
 - Anticipate roadblocks and provide tactical pivoting mechanics ("alternativeRoutes").
-- Ensure the 'diagnosis' is a deep, strategic teardown of their operational state.`;
+- Ensure the 'diagnosis' is a deep, strategic teardown of their operational state.
+- **CRITICAL**: If granular details like "employeeCount", "hourlyLaborCost", or "averageProcessingTime" are provided in the BUSINESS CONTEXT, you MUST base all mathematical breakdowns heavily upon those constraints to produce hyper-accurate penny-level math.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3.5-pro-preview",
+    model: "gemini-3.1-pro-preview",
     contents: prompt,
     config: {
       systemInstruction,

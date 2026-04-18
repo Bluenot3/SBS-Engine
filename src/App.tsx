@@ -8,57 +8,59 @@ import { Dashboard } from "./modules/dashboard/Dashboard";
 import { BackgroundParticles } from "./components/BackgroundParticles";
 import { Terminal, AnimatedSpan, TypingAnimation } from "./components/ui/terminal";
 
+import { HyperText } from "./components/ui/hyper-text";
+
 function TerminalDemo() {
   return (
     <Terminal className="h-[420px] shadow-[0_0_50px_rgba(0,0,0,0.1)]">
       <TypingAnimation>&gt; pnpm dlx shadcn@latest init</TypingAnimation>
 
-      <AnimatedSpan className="text-green-500" delay={0.5}>
+      <AnimatedSpan className="text-green-500">
         ✔ Preflight checks.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={1}>
+      <AnimatedSpan className="text-green-500">
         ✔ Verifying framework. Found Next.js.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={1.5}>
+      <AnimatedSpan className="text-green-500">
         ✔ Validating Tailwind CSS.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={2}>
+      <AnimatedSpan className="text-green-500">
         ✔ Validating import alias.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={2.5}>
+      <AnimatedSpan className="text-green-500">
         ✔ Writing components.json.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={3}>
+      <AnimatedSpan className="text-green-500">
         ✔ Checking registry.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={3.5}>
+      <AnimatedSpan className="text-green-500">
         ✔ Updating tailwind.config.ts
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={4}>
+      <AnimatedSpan className="text-green-500">
         ✔ Updating app/globals.css
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-green-500" delay={4.5}>
+      <AnimatedSpan className="text-green-500">
         ✔ Installing dependencies.
       </AnimatedSpan>
 
-      <AnimatedSpan className="text-blue-500" delay={5}>
+      <AnimatedSpan className="text-blue-500">
         <span>ℹ Updated 1 file:</span>
         <span className="pl-2">- lib/utils.ts</span>
       </AnimatedSpan>
 
-      <TypingAnimation className="text-white/60" delay={5.5}>
+      <TypingAnimation className="text-white/60">
         Success! Project initialization completed.
       </TypingAnimation>
 
-      <TypingAnimation className="text-white/60" delay={6}>
+      <TypingAnimation className="text-white/60">
         You may now add components.
       </TypingAnimation>
     </Terminal>
@@ -339,8 +341,8 @@ export default function App() {
            <span className="hover:opacity-100 cursor-pointer transition-opacity" onClick={() => appState === 'landing' ? loadDemo() : null}>Architecture</span>
            <span className="hover:opacity-100 cursor-pointer transition-opacity">Deployments</span>
            {appState === 'dashboard' && (
-              <>
-                 <span className="hover:opacity-100 cursor-pointer transition-opacity ml-8 border-l border-black/10 pl-8" onClick={() => {
+              <div className="flex items-center no-print">
+                 <span className="hover:opacity-100 cursor-pointer transition-opacity ml-8 border-l border-black/10 pl-8 relative group" onClick={() => {
                    if (playbook) {
                      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(playbook));
                      const downloadAnchorNode = document.createElement('a');
@@ -350,9 +352,44 @@ export default function App() {
                      downloadAnchorNode.click();
                      downloadAnchorNode.remove();
                    }
-                 }}>Export Architecture</span>
-                 <span className="hover:opacity-100 cursor-pointer transition-opacity text-red-500 font-bold ml-4 border-l border-black/10 pl-4" onClick={reset}>Terminate Session</span>
-              </>
+                 }}>
+                   Export Architecture
+                   
+                   <div className="absolute top-10 right-0 w-48 bg-white shadow-xl border border-black/5 rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col z-50">
+                     <button className="text-left px-4 py-2 hover:bg-black/5 rounded-xl text-black" onClick={(e) => {
+                        e.stopPropagation();
+                        // CSV Export
+                        if (playbook) {
+                           let csv = "Title,Category,Expected Value,Hours Saved/Wk,Implementation Ease\n";
+                           playbook.automations.forEach(a => {
+                              csv += `"${a.title}","${a.category || ''}","${a.expectedValue}","${a.metrics?.laborHoursPerWeek}","${a.scores?.implementationEase}"\n`;
+                           });
+                           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                           const link = document.createElement("a");
+                           link.href = URL.createObjectURL(blob);
+                           link.setAttribute("download", "zen-better-intelligence.csv");
+                           document.body.appendChild(link);
+                           link.click();
+                           document.body.removeChild(link);
+                        }
+                     }}>Export as CSV</button>
+                     <button className="text-left px-4 py-2 hover:bg-black/5 rounded-xl text-black" onClick={(e) => {
+                        e.stopPropagation();
+                        // LLM Markdown
+                        if (playbook && businessContext) {
+                           const md = `# ZEN Better: Operations Architecture\n\n## Client: ${businessContext.name} (${businessContext.industry})\n\n### Diagnosis\n${playbook.diagnosis?.executiveSummary}\n\n### Proposed Systems\n${playbook.automations.map(a => `- **${a.title}**: ${a.description} (Value: ${a.expectedValue})`).join('\n')}\n\n### Recommended Rollout\n${playbook.roadmap.map(r => `**${r.phase}**: ${r.title}\n${r.items.map(i => `  - ${i}`).join('\n')}`).join('\n\n')}`;
+                           navigator.clipboard.writeText(md);
+                           alert("Architecture copied to clipboard for Claude/Gemini!");
+                        }
+                     }}>Copy for LLM (Markdown)</button>
+                     <button className="text-left px-4 py-2 hover:bg-black/5 rounded-xl text-black" onClick={(e) => {
+                        e.stopPropagation();
+                        window.print();
+                     }}>Export Executive PDF</button>
+                   </div>
+                 </span>
+                 <span className="hover:opacity-100 cursor-pointer transition-opacity text-red-500 font-bold ml-6 border-l border-black/10 pl-6" onClick={reset}>Terminate Session</span>
+              </div>
            )}
          </div>
       </nav>
@@ -375,7 +412,7 @@ export default function App() {
                     ZEN Better • Operational Intelligence
                   </div>
                   <h1 className="text-6xl md:text-8xl font-serif text-black leading-[1.05] tracking-tight">
-                    Better operations.<br/><span className="italic opacity-30 font-light italic">Purely ZEN.</span>
+                    <HyperText animateOnLoad={true} duration={1000}>Better operations.</HyperText><br/><span className="italic opacity-30 font-light italic">Purely ZEN.</span>
                   </h1>
                   <p className="text-lg md:text-xl text-black/40 max-w-xl leading-relaxed font-light">
                     The nationally recognized architect for business transformation. We identify revenue leaks and synthesize granular, platform-specific automation ecosystems and agent-led roadmaps.
@@ -459,10 +496,17 @@ export default function App() {
                 <div className="w-3 h-3 bg-black rounded-full absolute z-20"></div>
               </div>
               <div className="space-y-4 max-w-md relative z-10">
-                <h3 className="text-3xl font-serif text-black tracking-tight">Synthesizing Core Architecture</h3>
+                <h3 className="text-3xl font-serif text-black tracking-tight">
+                  <HyperText animateOnLoad={true} duration={2500}>Synthesizing Core Architecture</HyperText>
+                </h3>
                 <p className="text-black/50 text-[13px] tracking-wide leading-relaxed">
                   Mapping pain points, evaluating logic redundancies, and constructing multi-agent solutions.
                 </p>
+                <div className="pt-6">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100">
+                    Deep execution may take ~60 seconds
+                  </span>
+                </div>
               </div>
             </motion.div>
           )}

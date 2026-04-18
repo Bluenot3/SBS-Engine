@@ -12,7 +12,7 @@ export const BackgroundParticles = () => {
 
     let animationFrameId: number;
     let particles: Particle[] = [];
-    const particleCount = 120;
+    const particleCount = 200; // Increased for superfine effect
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -30,10 +30,10 @@ export const BackgroundParticles = () => {
       constructor() {
         this.x = Math.random() * canvas!.width;
         this.y = Math.random() * canvas!.height;
-        this.size = Math.random() * 1.5 + 0.2;
-        this.speedX = (Math.random() - 0.5) * 0.3;
-        this.speedY = (Math.random() - 0.5) * 0.3;
-        this.opacity = Math.random() * 0.5 + 0.1;
+        this.size = Math.random() * 0.8 + 0.1; // Superfine size
+        this.speedX = (Math.random() - 0.5) * 0.15; // Slow drift
+        this.speedY = (Math.random() - 0.5) * 0.15;
+        this.opacity = Math.random() * 0.4 + 0.1;
       }
 
       update() {
@@ -50,8 +50,8 @@ export const BackgroundParticles = () => {
         if (!ctx) return;
         ctx.fillStyle = `rgba(0, 0, 0, ${this.opacity})`;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        // Use rect instead of arc for that "pixelated black dust particle" look
+        ctx.fillRect(this.x, this.y, this.size, this.size);
       }
     }
 
@@ -85,8 +85,8 @@ export const BackgroundParticles = () => {
   return (
     <canvas 
       ref={canvasRef} 
-      className="fixed inset-0 pointer-events-none -z-5 pr-10" 
-      style={{ opacity: 0.15 }}
+      className="fixed inset-0 pointer-events-none z-[-1]" 
+      style={{ opacity: 0.3 }}
     />
   );
 };

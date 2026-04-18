@@ -5,6 +5,7 @@ import { Map, Zap, Users, Calendar, Target, ShieldCheck, AlertCircle, Maximize2,
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis, ReferenceLine } from "recharts";
 import { ProcessVisualizer } from "../../components/ProcessVisualizer";
 import { OverviewSynopsis } from "./OverviewSynopsis";
+import { NumberTicker } from "../../components/ui/number-ticker";
 
 type DashboardProps = {
   playbook: Playbook;
@@ -164,15 +165,17 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                         {auto.metrics && (
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                             {[
-                              { label: "Labor Impact", value: `${auto.metrics.laborHoursPerWeek}h/wk`, icon: Clock },
-                              { label: "Yield (Est)", value: `$${(auto.metrics.dollarsPerYear/1000).toFixed(0)}k/yr`, icon: Target },
-                              { label: "Agent Output", value: `${auto.metrics.emailsAutomatedPerWeek} comms`, icon: Mail },
-                              { label: "Error Reduction", value: `${auto.metrics.errorRateReduction}%`, icon: ShieldCheck }
+                              { label: "Labor Impact", value: auto.metrics.laborHoursPerWeek, suffix: "h/wk", icon: Clock },
+                              { label: "Yield (Est)", prefix: "$", value: auto.metrics.dollarsPerYear/1000, suffix: "k/yr", decimalPlaces: 0, icon: Target },
+                              { label: "Agent Output", value: auto.metrics.emailsAutomatedPerWeek, suffix: " comms", icon: Mail },
+                              { label: "Error Reduction", value: auto.metrics.errorRateReduction, suffix: "%", icon: ShieldCheck }
                             ].map((m, i) => (
                               <div key={i} className="zen-glass p-5 rounded-3xl flex flex-col gap-2">
                                 <m.icon className="w-4 h-4 opacity-40 mb-1" />
                                 <span className="text-[10px] font-bold text-black/30 uppercase tracking-widest">{m.label}</span>
-                                <span className="text-xl font-medium text-black">{m.value}</span>
+                                <span className="text-xl font-medium text-black">
+                                  <NumberTicker value={m.value} prefix={m.prefix} suffix={m.suffix} decimalPlaces={m.decimalPlaces} />
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -190,19 +193,27 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                               <div className="grid grid-cols-2 gap-6">
                                 <div>
                                   <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Ten-Year Compounding Savings</span>
-                                  <span className="text-3xl font-serif text-black">${(auto.forecast.tenYearCumulativeSavings / 1000000).toFixed(2)}M</span>
+                                  <span className="text-3xl font-serif text-black">
+                                    <NumberTicker prefix="$" value={auto.forecast.tenYearCumulativeSavings / 1000000} suffix="M" decimalPlaces={2} />
+                                  </span>
                                 </div>
                                 <div>
                                   <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Calculated ROI</span>
-                                  <span className="text-3xl font-serif text-black">{auto.forecast.ROI}%</span>
+                                  <span className="text-3xl font-serif text-black">
+                                    <NumberTicker value={auto.forecast.ROI} suffix="%" />
+                                  </span>
                                 </div>
                                 <div>
                                   <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Initial CapEx</span>
-                                  <span className="text-xl font-medium text-black">${(auto.forecast.initialImplementationCost / 1000).toFixed(1)}k</span>
+                                  <span className="text-xl font-medium text-black">
+                                    <NumberTicker prefix="$" value={auto.forecast.initialImplementationCost / 1000} suffix="k" decimalPlaces={1} />
+                                  </span>
                                 </div>
                                 <div>
                                   <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Break-Even Point</span>
-                                  <span className="text-xl font-medium text-black">Month {auto.forecast.breakEvenMonth}</span>
+                                  <span className="text-xl font-medium text-black">
+                                    Month <NumberTicker value={auto.forecast.breakEvenMonth} />
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -250,10 +261,10 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                                     <span className="block text-[9px] font-bold text-black/30 uppercase tracking-widest border-b border-black/5 pb-2">Per {scope}</span>
                                     <div className="space-y-1 pt-2">
                                       <span className="block text-[14px] font-medium text-emerald-700">
-                                        ${auto.metrics.savingsPerTeam.dollars[key].toLocaleString()}
+                                        <NumberTicker prefix="$" value={auto.metrics.savingsPerTeam.dollars[key] || 0} decimalPlaces={auto.metrics.savingsPerTeam.dollars[key] % 1 === 0 ? 0 : 2} />
                                       </span>
                                       <span className="block text-[11px] font-light text-black/50">
-                                        {auto.metrics.savingsPerTeam.hours[key]} hrs
+                                        <NumberTicker value={auto.metrics.savingsPerTeam.hours[key] || 0} suffix=" hrs" />
                                       </span>
                                     </div>
                                   </div>
@@ -295,12 +306,12 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                            <div className="flex gap-8 mb-8 bg-black/5 px-6 py-4 rounded-2xl inline-flex w-full md:w-auto">
                               <div className="flex flex-col gap-1 w-1/2 md:w-auto text-center md:text-left">
                                 <span className="text-[10px] font-bold text-black/40 uppercase tracking-widest">Value Density</span>
-                                <span className="text-2xl font-light text-black">{auto.valueScore}</span>
+                                <span className="text-2xl font-light text-black"><NumberTicker value={auto.valueScore} /></span>
                               </div>
                               <div className="w-[1px] bg-black/10"></div>
                               <div className="flex flex-col gap-1 w-1/2 md:w-auto text-center md:text-left">
                                 <span className="text-[10px] font-bold text-black/40 uppercase tracking-widest">Friction Index</span>
-                                <span className="text-2xl font-light text-black">{auto.frictionScore}</span>
+                                <span className="text-2xl font-light text-black"><NumberTicker value={auto.frictionScore} /></span>
                               </div>
                            </div>
                         )}

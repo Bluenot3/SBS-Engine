@@ -12,6 +12,10 @@ export interface BusinessContext {
   painPoints: string;
   goals: string;
   budgetSensitivity: "low" | "medium" | "high";
+  employeeCount?: number;
+  hourlyLaborCost?: number;
+  averageProcessingTime?: number;
+  estimatedVolume?: number;
 }
 
 export interface Diagnosis {

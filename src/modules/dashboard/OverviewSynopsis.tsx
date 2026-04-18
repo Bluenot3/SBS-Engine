@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Playbook, BusinessContext } from "../../types";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell, PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ScatterChart, Scatter, ZAxis, ReferenceLine } from "recharts";
 import { TrendingUp, Clock, Mail, DollarSign, Activity } from "lucide-react";
+import { NumberTicker } from "../../components/ui/number-ticker";
 
 type OverviewSynopsisProps = {
   playbook: Playbook;
@@ -84,10 +85,10 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
       {/* High-Impact Stat Matrix */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Annual Capital", value: `$${(totalDollars/1000).toFixed(0)}k`, icon: DollarSign, trend: "+14.2%" },
-          { label: "Weekly Capacity", value: `${totalHours} hrs`, icon: Clock, trend: "+25.8%" },
-          { label: "Agent Output", value: `${totalEmails} units`, icon: Mail, trend: "99.2% Acc" },
-          { label: "Synergy Index", value: "94%", icon: Activity, trend: "Peak" }
+          { label: "Annual Capital", prefix: "$", value: totalDollars / 1000, suffix: "k", decimalPlaces: 0, icon: DollarSign, trend: "+14.2%" },
+          { label: "Weekly Capacity", prefix: "", value: totalHours, suffix: " hrs", decimalPlaces: 0, icon: Clock, trend: "+25.8%" },
+          { label: "Agent Output", prefix: "", value: totalEmails, suffix: " units", decimalPlaces: 0, icon: Mail, trend: "99.2% Acc" },
+          { label: "Synergy Index", prefix: "", value: 94, suffix: "%", decimalPlaces: 0, icon: Activity, trend: "Peak" }
         ].map((stat, i) => (
           <motion.div 
             key={i}
@@ -104,7 +105,14 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
             </div>
             <div className="relative z-10 pt-2">
               <h4 className="text-[11px] font-bold text-black/50 uppercase tracking-[0.15em] mb-1">{stat.label}</h4>
-              <p className="text-4xl font-serif text-black">{stat.value}</p>
+              <p className="text-4xl font-serif text-black">
+                <NumberTicker 
+                  value={stat.value} 
+                  prefix={stat.prefix} 
+                  suffix={stat.suffix} 
+                  decimalPlaces={stat.decimalPlaces} 
+                />
+              </p>
             </div>
           </motion.div>
         ))}
@@ -132,16 +140,16 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorFriction" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#000000" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.5} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#000', opacity: 0.5, fontFamily: 'var(--font-mono)' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#000', opacity: 0.5, fontFamily: 'var(--font-mono)' }} />
                   <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                  <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                  <Area type="monotone" dataKey="friction" stroke="#ef4444" strokeWidth={2} strokeDasharray="4 4" fill="url(#colorFriction)" />
+                  <Area type="step" dataKey="value" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                  <Area type="step" dataKey="friction" stroke="#000000" strokeWidth={2} strokeDasharray="4 4" fill="url(#colorFriction)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -167,15 +175,15 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#000000" opacity={0.05} />
-                  <XAxis type="number" dataKey="friction" name="Friction" unit=" idx" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} domain={[0, 100]} />
-                  <YAxis type="number" dataKey="value" name="Value" unit=" pts" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} domain={[0, 100]} />
+                  <XAxis type="number" dataKey="friction" name="Friction" unit=" idx" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#000', opacity: 0.5, fontFamily: 'var(--font-mono)' }} domain={[0, 100]} />
+                  <YAxis type="number" dataKey="value" name="Value" unit=" pts" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#000', opacity: 0.5, fontFamily: 'var(--font-mono)' }} domain={[0, 100]} />
                   <ZAxis type="number" dataKey="z" range={[100, 300]} />
                   <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#000' }} />
                   <ReferenceLine x={50} stroke="#000000" strokeOpacity={0.1} />
                   <ReferenceLine y={50} stroke="#000000" strokeOpacity={0.1} />
-                  <Scatter name="Intel" data={scatterData} fill="#10b981">
+                  <Scatter name="Intel" data={scatterData} fill="#000000">
                     {scatterData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#10b981' : '#000000'} />
                     ))}
                   </Scatter>
                 </ScatterChart>
@@ -197,9 +205,9 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                   <PolarGrid stroke="#000000" strokeOpacity={0.08} />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#000000', opacity: 0.6, fontSize: 10, fontWeight: 600 }} />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#000000', opacity: 0.8, fontSize: 9, fontWeight: 700, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Synergy" dataKey="A" stroke="#3b82f6" strokeWidth={2} fill="#3b82f6" fillOpacity={0.2} />
+                  <Radar name="Synergy" dataKey="A" stroke="#000000" strokeWidth={2} fill="#000000" fillOpacity={0.05} />
                   <Tooltip content={<CustomTooltip />} />
                 </RadarChart>
               </ResponsiveContainer>
@@ -216,13 +224,45 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
                    ZEN Better analyzes operational entropy at the sub-atomic level. Our proposed model for the {context.industry} sector focuses on the absolute elimination of low-value manual processing, seamlessly re-routing human capital toward high-yield cognitive strategy and exponential growth.
                  </p>
                </div>
-               <div className="flex flex-wrap gap-4 pt-2">
+               <div className="flex flex-wrap gap-4 pt-2 no-print relative">
                   <button className="px-8 py-4 rounded-full bg-black text-white text-[13px] font-medium tracking-wide shadow-xl shadow-black/20 hover:scale-105 active:scale-95 transition-all">
                     Initiate Deployment
                   </button>
-                  <button className="px-8 py-4 rounded-full bg-white/50 border border-black/10 text-black text-[13px] font-medium tracking-wide hover:bg-white hover:shadow-lg transition-all">
-                    Export Executive PDF
-                  </button>
+                  <div className="relative group">
+                    <button 
+                      onClick={() => window.print()}
+                      className="px-8 py-4 rounded-full bg-white/50 border border-black/10 text-black text-[13px] font-medium tracking-wide hover:bg-white hover:shadow-lg transition-all"
+                    >
+                      Export Actions
+                    </button>
+                    
+                    <div className="absolute bottom-full mb-2 left-0 w-64 bg-white/90 backdrop-blur-xl shadow-xl border border-black/5 rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col z-50">
+                       <button className="text-left px-4 py-3 hover:bg-black/5 rounded-xl text-black text-[13px]" onClick={(e) => {
+                          e.stopPropagation();
+                          let csv = "Title,Category,Expected Value,Hours Saved/Wk,Implementation Ease\n";
+                          playbook.automations.forEach(a => {
+                             csv += `"${a.title}","${a.category || ''}","${a.expectedValue}","${a.metrics?.laborHoursPerWeek}","${a.scores?.implementationEase}"\n`;
+                          });
+                          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                          const link = document.createElement("a");
+                          link.href = URL.createObjectURL(blob);
+                          link.setAttribute("download", "zen-better-intelligence.csv");
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                       }}>Download Data (CSV)</button>
+                       <button className="text-left px-4 py-3 hover:bg-black/5 rounded-xl text-black text-[13px]" onClick={(e) => {
+                          e.stopPropagation();
+                          const md = `# ZEN Better: Operations Architecture\n\n## Client: ${context.name} (${context.industry})\n\n### Diagnosis\n${playbook.diagnosis?.executiveSummary}\n\n### Proposed Systems\n${playbook.automations.map(a => `- **${a.title}**: ${a.description} (Value: ${a.expectedValue})`).join('\n')}\n\n### Recommended Rollout\n${playbook.roadmap.map(r => `**${r.phase}**: ${r.title}\n${r.items.map(i => `  - ${i}`).join('\n')}`).join('\n\n')}`;
+                          navigator.clipboard.writeText(md);
+                          alert("Architecture copied to clipboard for Claude/Gemini!");
+                       }}>Copy AI Context (Markdown)</button>
+                       <button className="text-left px-4 py-3 hover:bg-black/5 rounded-xl text-black text-[13px]" onClick={(e) => {
+                          e.stopPropagation();
+                          window.print();
+                       }}>Export Executive Brief (PDF)</button>
+                    </div>
+                  </div>
                </div>
             </div>
          </motion.div>
