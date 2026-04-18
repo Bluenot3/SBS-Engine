@@ -33,11 +33,49 @@ export interface ScoringCriteria {
   risk: number;
 }
 
+export interface GranularMetrics {
+  hour: number;
+  day: number;
+  week: number;
+  month: number;
+  year: number;
+  decade: number;
+}
+
 export interface MetricSavings {
   laborHoursPerWeek: number;
   dollarsPerYear: number;
   emailsAutomatedPerWeek: number;
   errorRateReduction: number;
+  savingsPerPerson: {
+    hours: GranularMetrics;
+    dollars: GranularMetrics;
+  };
+  savingsPerTeam: {
+    hours: GranularMetrics;
+    dollars: GranularMetrics;
+  };
+  enterpriseTotal: {
+    yearOne: number;
+    yearFive: number;
+    yearTen: number;
+  };
+}
+
+export interface ObstacleMitigation {
+  roadblock: string;
+  probability: "low" | "medium" | "high";
+  riskImpact: "low" | "medium" | "high" | "critical";
+  alternativeRoute: string;
+  rectificationSteps: string[];
+}
+
+export interface FinancialForecast {
+  initialImplementationCost: number;
+  monthlyOperationalCost: number;
+  breakEvenMonth: number;
+  tenYearCumulativeSavings: number;
+  ROI: number;
 }
 
 export interface ArchitectureItem {
@@ -52,6 +90,8 @@ export interface ArchitectureItem {
   humanInLoop: string;
   expectedValue: string;
   metrics: MetricSavings;
+  forecast: FinancialForecast;
+  obstacles: ObstacleMitigation[];
   implementationSteps: string[];
   platforms: string[];
   scores: ScoringCriteria;
@@ -71,10 +111,19 @@ export interface AgentDesign {
   escalationLogic: string;
 }
 
+export interface RoadmapItem {
+  task: string;
+  startDateOffsetDays: number;
+  durationDays: number;
+  dependencies: string[];
+  assignedTeam: string;
+}
+
 export interface RoadmapPhase {
   phase: string;
   title: string;
   items: string[];
+  detailedItems: RoadmapItem[];
   timeframe: string;
 }
 

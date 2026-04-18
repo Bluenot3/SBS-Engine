@@ -134,8 +134,33 @@ export default function App() {
             laborHoursPerWeek: 45,
             dollarsPerYear: 210000,
             emailsAutomatedPerWeek: 850,
-            errorRateReduction: 98
+            errorRateReduction: 98,
+            savingsPerPerson: {
+              hours: { hour: 0.1, day: 0.8, week: 4, month: 16, year: 192, decade: 1920 },
+              dollars: { hour: 4.5, day: 36, week: 180, month: 720, year: 8640, decade: 86400 }
+            },
+            savingsPerTeam: {
+              hours: { hour: 1, day: 8, week: 45, month: 180, year: 2160, decade: 21600 },
+              dollars: { hour: 100.96, day: 807.69, week: 4038, month: 16153, year: 210000, decade: 2100000 }
+            },
+            enterpriseTotal: { yearOne: 210000, yearFive: 1050000, yearTen: 2100000 }
           },
+          forecast: {
+            initialImplementationCost: 15000,
+            monthlyOperationalCost: 200,
+            breakEvenMonth: 1,
+            tenYearCumulativeSavings: 2076000,
+            ROI: 13840
+          },
+          obstacles: [
+            {
+              roadblock: "Twilio SMS Delivery Blocked by Carriers",
+              probability: "medium",
+              riskImpact: "high",
+              alternativeRoute: "Fallback to WhatsApp Business API and Email",
+              rectificationSteps: ["Register A2P 10DLC", "Implement WhatsApp fallback logic in Make.com"]
+            }
+          ],
           scores: {
              revenueImpact: 9, costReduction: 7, timeSavings: 10, cxImprovement: 6, strategicLeverage: 8, complexity: 6, implementationEase: 5, maintenanceBurden: 3, risk: 3
           },
@@ -166,8 +191,33 @@ export default function App() {
             laborHoursPerWeek: 15,
             dollarsPerYear: 340000,
             emailsAutomatedPerWeek: 0,
-            errorRateReduction: 92
+            errorRateReduction: 92,
+            savingsPerPerson: {
+              hours: { hour: 0.05, day: 0.4, week: 2, month: 8, year: 96, decade: 960 },
+              dollars: { hour: 5, day: 40, week: 200, month: 800, year: 9600, decade: 96000 }
+            },
+            savingsPerTeam: {
+              hours: { hour: 0.3, day: 2.4, week: 15, month: 60, year: 720, decade: 7200 },
+              dollars: { hour: 163.46, day: 1307.69, week: 6538, month: 26153, year: 340000, decade: 3400000 }
+            },
+            enterpriseTotal: { yearOne: 340000, yearFive: 1700000, yearTen: 3400000 }
           },
+          forecast: {
+            initialImplementationCost: 45000,
+            monthlyOperationalCost: 800,
+            breakEvenMonth: 2,
+            tenYearCumulativeSavings: 3345400,
+            ROI: 7434
+          },
+          obstacles: [
+            {
+              roadblock: "Competitor Scraper Blocked",
+              probability: "high",
+              riskImpact: "medium",
+              alternativeRoute: "Use aggregated historical patterns to predict surges rather than live scraping",
+              rectificationSteps: ["Implement proxy rotation", "Train LLM on historical event mapping"]
+            }
+          ],
           scores: {
              revenueImpact: 10, costReduction: 4, timeSavings: 5, cxImprovement: 4, strategicLeverage: 10, complexity: 9, implementationEase: 3, maintenanceBurden: 7, risk: 6
           },
@@ -201,19 +251,34 @@ export default function App() {
           phase: "Phase 1: Foundation",
           title: "Centralize Data Pipelines",
           timeframe: "Month 1-2",
-          items: ["Audit local tool usage", "Deploy automated Data Warehouse sync", "Cleanse legacy data"]
+          items: ["Audit local tool usage", "Deploy automated Data Warehouse sync", "Cleanse legacy data"],
+          detailedItems: [
+            { task: "Audit local tool usage", startDateOffsetDays: 0, durationDays: 14, dependencies: [], assignedTeam: "RevOps" },
+            { task: "Deploy automated DW sync", startDateOffsetDays: 14, durationDays: 30, dependencies: ["Audit local tool usage"], assignedTeam: "Data Eng" },
+            { task: "Cleanse legacy data", startDateOffsetDays: 44, durationDays: 16, dependencies: ["Deploy automated DW sync"], assignedTeam: "RevOps" }
+          ]
         },
         {
           phase: "Phase 2: Automation",
           title: "Deploy Automated Collections",
           timeframe: "Month 3",
-          items: ["Integrate Twilio with Billing", "Train Collections Agent on playbooks", "Roll out to 5 pilot locations"]
+          items: ["Integrate Twilio with Billing", "Train Collections Agent on playbooks", "Roll out to 5 pilot locations"],
+          detailedItems: [
+             { task: "Build Twilio to Billing map", startDateOffsetDays: 60, durationDays: 10, dependencies: [], assignedTeam: "DevOps" },
+             { task: "Train Agent Models", startDateOffsetDays: 70, durationDays: 10, dependencies: ["Build Twilio to Billing map"], assignedTeam: "AI Engineering" },
+             { task: "Pilot Launch (5 locations)", startDateOffsetDays: 80, durationDays: 10, dependencies: ["Train Agent Models"], assignedTeam: "Ops Leadership" }
+          ]
         },
         {
           phase: "Phase 3: Scale",
           title: "Network-Wide Orchestration",
           timeframe: "Month 4-6",
-          items: ["Deploy across all 45 marinas", "Activate Operations Analyst Agent", "Transition to maintenance mode"]
+          items: ["Deploy across all 45 marinas", "Activate Operations Analyst Agent", "Transition to maintenance mode"],
+          detailedItems: [
+             { task: "Network-Wide Rollout", startDateOffsetDays: 90, durationDays: 45, dependencies: ["Pilot Launch (5 locations)"], assignedTeam: "Ops Leadership" },
+             { task: "Activate Analyst Agent", startDateOffsetDays: 135, durationDays: 15, dependencies: ["Network-Wide Rollout"], assignedTeam: "AI Engineering" },
+             { task: "Handoff to Maintenance", startDateOffsetDays: 150, durationDays: 30, dependencies: ["Activate Analyst Agent"], assignedTeam: "Support" }
+          ]
         }
       ],
       prioritizationMatrix: [

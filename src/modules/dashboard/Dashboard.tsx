@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { BusinessContext, Playbook, PrioritizationCategory } from "../../types";
-import { Map, Zap, Users, Calendar, Target, ShieldCheck, AlertCircle, Maximize2, ChevronDown, Clock, MousePointer, Mail, Globe } from "lucide-react";
+import { BusinessContext, Playbook, PrioritizationCategory, GranularMetrics } from "../../types";
+import { Map, Zap, Users, Calendar, Target, ShieldCheck, AlertCircle, Maximize2, ChevronDown, Clock, MousePointer, Mail, Globe, Activity } from "lucide-react";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis, ReferenceLine } from "recharts";
 import { ProcessVisualizer } from "../../components/ProcessVisualizer";
 import { OverviewSynopsis } from "./OverviewSynopsis";
@@ -178,6 +178,90 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                           </div>
                         )}
 
+                        {/* Deep Financial & Obstacle Integration */}
+                        {auto.forecast && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                            {/* ROI Forecasting */}
+                            <div className="zen-glass p-8 rounded-3xl space-y-6">
+                              <h4 className="text-[11px] font-bold text-black/40 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <Activity className="w-3 h-3 text-emerald-500" />
+                                10-Year Mathematical Forecast
+                              </h4>
+                              <div className="grid grid-cols-2 gap-6">
+                                <div>
+                                  <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Ten-Year Compounding Savings</span>
+                                  <span className="text-3xl font-serif text-black">${(auto.forecast.tenYearCumulativeSavings / 1000000).toFixed(2)}M</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Calculated ROI</span>
+                                  <span className="text-3xl font-serif text-black">{auto.forecast.ROI}%</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Initial CapEx</span>
+                                  <span className="text-xl font-medium text-black">${(auto.forecast.initialImplementationCost / 1000).toFixed(1)}k</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[10px] text-black/40 uppercase tracking-widest mb-1">Break-Even Point</span>
+                                  <span className="text-xl font-medium text-black">Month {auto.forecast.breakEvenMonth}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Obstacle Mitigation */}
+                            {auto.obstacles && auto.obstacles.length > 0 && (
+                              <div className="bg-red-50/50 p-8 rounded-3xl border border-red-100/50 space-y-4">
+                                <h4 className="text-[11px] font-bold text-red-800/60 uppercase tracking-[0.2em] flex items-center gap-2">
+                                  <ShieldCheck className="w-3 h-3 text-red-500" />
+                                  Predicted Roadblocks & Pivot Logic
+                                </h4>
+                                {auto.obstacles.map((obs, idx) => (
+                                  <div key={idx} className="space-y-3">
+                                    <div className="flex justify-between items-start">
+                                      <span className="text-[14px] font-medium text-red-900">{obs.roadblock}</span>
+                                      <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${obs.riskImpact === 'high' || obs.riskImpact === 'critical' ? 'bg-red-500/20 text-red-700' : 'bg-red-500/10 text-red-600'}`}>
+                                        {obs.riskImpact} Risk
+                                      </span>
+                                    </div>
+                                    <div className="pl-4 border-l-2 border-red-200/50 space-y-2">
+                                      <span className="block text-[11px] text-red-800/70 font-medium">PIVOT STRATEGY: {obs.alternativeRoute}</span>
+                                      <ul className="space-y-1">
+                                        {obs.rectificationSteps.map((step, sIdx) => (
+                                          <li key={sIdx} className="text-[12px] text-red-900/60 font-light">• {step}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Granular Matrix Detail */}
+                        {auto.metrics?.savingsPerPerson && (
+                           <div className="mb-10 zen-glass-heavy p-8 rounded-[2.5rem] overflow-hidden relative">
+                              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-transparent opacity-20" />
+                              <h4 className="text-[11px] font-bold text-black/40 uppercase tracking-[0.2em] mb-6">Granular Fractional Savings</h4>
+                              <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+                                {['Hour', 'Day', 'Week', 'Month', 'Year', 'Decade'].map((scope, idx) => {
+                                  const key = scope.toLowerCase() as keyof GranularMetrics;
+                                  return (
+                                  <div key={idx} className="space-y-2">
+                                    <span className="block text-[9px] font-bold text-black/30 uppercase tracking-widest border-b border-black/5 pb-2">Per {scope}</span>
+                                    <div className="space-y-1 pt-2">
+                                      <span className="block text-[14px] font-medium text-emerald-700">
+                                        ${auto.metrics.savingsPerTeam.dollars[key].toLocaleString()}
+                                      </span>
+                                      <span className="block text-[11px] font-light text-black/50">
+                                        {auto.metrics.savingsPerTeam.hours[key]} hrs
+                                      </span>
+                                    </div>
+                                  </div>
+                                )})}
+                              </div>
+                           </div>
+                        )}
+
                         {/* Platform Badges */}
                         <div className="mb-10 flex flex-wrap gap-3 items-center">
                           <span className="text-[10px] font-bold text-black/30 uppercase tracking-widest mr-2">InfrastructureStack</span>
@@ -329,13 +413,34 @@ export function Dashboard({ playbook, context, reset }: DashboardProps) {
                     <div className={`zen-glass-heavy border border-white/60 p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] ${i % 2 === 0 ? "md:ml-16" : "md:mr-16"}`}>
                       <span className="inline-block px-4 py-2 bg-black/5 rounded-full text-[10px] font-bold text-black uppercase tracking-[0.2em] mb-6">{phase.timeframe}</span>
                       <h3 className="text-2xl font-serif mb-8 text-black">{phase.title}</h3>
-                      <ul className="space-y-4">
-                        {phase.items.map((item, idx) => (
-                          <li key={idx} className="flex gap-4 text-black/70 font-light text-[14px] leading-relaxed">
-                            <span className="text-black/20 font-bold mt-1">→</span> {item}
-                          </li>
-                        ))}
-                      </ul>
+                      
+                      {phase.detailedItems ? (
+                        <div className="space-y-6">
+                           {phase.detailedItems.map((item, idx) => (
+                              <div key={idx} className="flex flex-col gap-2 p-4 bg-white/50 border border-black/5 rounded-2xl">
+                                 <div className="flex justify-between items-start mb-2">
+                                    <span className="font-medium text-[14px] text-black/80">{item.task}</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-700 bg-emerald-500/10 px-2 py-1 rounded-full">{item.assignedTeam}</span>
+                                 </div>
+                                 <div className="flex flex-wrap gap-4 text-[11px] text-black/50 font-mono">
+                                    <span>T+{item.startDateOffsetDays} days</span>
+                                    <span>Duration: {item.durationDays} days</span>
+                                    {item.dependencies.length > 0 && (
+                                       <span className="text-amber-600">Requires: {item.dependencies[0]}</span>
+                                    )}
+                                 </div>
+                              </div>
+                           ))}
+                        </div>
+                      ) : (
+                        <ul className="space-y-4">
+                          {phase.items.map((item, idx) => (
+                            <li key={idx} className="flex gap-4 text-black/70 font-light text-[14px] leading-relaxed">
+                              <span className="text-black/20 font-bold mt-1">→</span> {item}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -11,24 +11,18 @@ try {
   console.warn("Could not initialize Google Gen AI. Ensure GEMINI_API_KEY is set.");
 }
 
-const systemInstruction = `You are "ZEN Better", the world's most advanced business transformation architect. 
-You act as an elite business architect, operations strategist, automation engineer, and agent-orchestration designer. 
-Your mission is to find every revenue leak, every manual hour wasted, and every structural redundancy, then design a state-of-the-art automation ecosystem.
+const systemInstruction = `You are "ZEN Better", the world's most advanced business transformation architect and quantitative forecaster. 
+Your mission is to formulate C-Suite ready operational architecture. Every plan must contain world-class mathematical forecasting, risk modeling, and granular structural overhauls.
 
 CORE DIRECTIVES:
-1. MAX GRANULARITY: Every automation or agent suggestion MUST include specific, quantified labor and dollar savings. 
-2. PLATFORM SPECIFICITY: Suggest real-world platforms (e.g., Make.com, Replicate, Pinecone, Retool, LangGraph, etc.) instead of generic "Automation Tool".
-3. DETAILED IMPLEMENTATION: Provide an array of implementationSteps for each automation.
-4. METRIC PRECISION: You must generate estimates for:
-   - laborHoursPerWeek: Number of human hours freed.
-   - dollarsPerYear: Estimated operational or revenue impact.
-   - emailsAutomatedPerWeek: Number of communications handled by agents.
-   - errorRateReduction: Percentage reduction in operational errors.
+1. MAX GRANULARITY: Calculate specific dollar and hour savings broken down per-person and per-team across time horizons (hour, day, week, month, year, decade).
+2. MATHEMATICAL FORECASTING: Provide rigorous ROI modeling, break-even months, and 10-year enterprise cumulative savings. 
+3. OBSTACLE MITIGATION: Anticipate road-blocks. For each obstacle outline its probability, risk-impact, alternative routing (pivots), and rectification steps.
+4. ROADMAP PRECISION: Every roadmap phase must include exact dependencies, assigned operational teams, duration, and day offsets.
 
 CRITICAL SCORING INSTRUCTIONS:
-- You must score every automation opportunity using our proprietary dual-axis matrix (Value vs Friction) out of 100 points each.
-- Value Score Formula (1-100 total): (revenueImpact * 3) + (costReduction * 2) + (timeSavings * 2.5) + (cxImprovement * 1.5) + (strategicLeverage * 1) -> scaled to 100 max. Each metric evaluates from 1 to 10.
-- Friction Score Formula (1-100 total): (complexity * 4) + ((10 - implementationEase) * 3) + (maintenanceBurden * 2) + (risk * 1) -> scaled to 100 max. Each metric evaluates from 1 to 10.
+- Value Score Formula (1-100 total): (revenueImpact * 3) + (costReduction * 2) + (timeSavings * 2.5) + (cxImprovement * 1.5) + (strategicLeverage * 1). Scale to 100 max. 
+- Friction Score Formula (1-100 total): (complexity * 4) + ((10 - implementationEase) * 3) + (maintenanceBurden * 2) + (risk * 1). Scale to 100 max.
 
 Output EXACTLY categorized string literals:
 - "Can do now" (Value > 60, Friction < 40)
@@ -36,6 +30,20 @@ Output EXACTLY categorized string literals:
 - "Should do next" (Value <= 60, Friction < 40)
 - "Not worth doing yet" (Value <= 60, Friction >= 40)
 `;
+
+// Helper schema for Granular Metrics
+const granularMetricsSchema = {
+  type: Type.OBJECT,
+  properties: {
+    hour: { type: Type.NUMBER },
+    day: { type: Type.NUMBER },
+    week: { type: Type.NUMBER },
+    month: { type: Type.NUMBER },
+    year: { type: Type.NUMBER },
+    decade: { type: Type.NUMBER }
+  },
+  required: ["hour", "day", "week", "month", "year", "decade"]
+};
 
 export async function generatePlaybook(context: BusinessContext): Promise<Playbook> {
   if (!ai) {
@@ -48,13 +56,13 @@ BUSINESS CONTEXT:
 ${JSON.stringify(context, null, 2)}
 
 Requirements:
-- Identify at least 5-8 high-impact automation opportunities.
-- Be extremely granular about the 'metrics' object for each automation.
-- Detail the implementation 'logic' and 'platforms' used.
-- Ensure the 'diagnosis' is a deep, strategic teardown of their current operational state.`;
+- Identify 5-8 high-impact automation opportunities with extreme precision.
+- Provide mathematically sound long-term forecasting (10-year scale) and ROI.
+- Anticipate roadblocks and provide tactical pivoting mechanics ("alternativeRoutes").
+- Ensure the 'diagnosis' is a deep, strategic teardown of their operational state.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3.1-pro-preview",
+    model: "gemini-3.5-pro-preview",
     contents: prompt,
     config: {
       systemInstruction,
@@ -89,15 +97,65 @@ Requirements:
                 implementationSteps: { type: Type.ARRAY, items: { type: Type.STRING } },
                 humanInLoop: { type: Type.STRING },
                 expectedValue: { type: Type.STRING },
+                forecast: {
+                  type: Type.OBJECT,
+                  properties: {
+                    initialImplementationCost: { type: Type.NUMBER },
+                    monthlyOperationalCost: { type: Type.NUMBER },
+                    breakEvenMonth: { type: Type.NUMBER },
+                    tenYearCumulativeSavings: { type: Type.NUMBER },
+                    ROI: { type: Type.NUMBER }
+                  },
+                  required: ["initialImplementationCost", "monthlyOperationalCost", "breakEvenMonth", "tenYearCumulativeSavings", "ROI"]
+                },
+                obstacles: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      roadblock: { type: Type.STRING },
+                      probability: { type: Type.STRING, enum: ["low", "medium", "high"] },
+                      riskImpact: { type: Type.STRING, enum: ["low", "medium", "high", "critical"] },
+                      alternativeRoute: { type: Type.STRING },
+                      rectificationSteps: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    },
+                    required: ["roadblock", "probability", "riskImpact", "alternativeRoute", "rectificationSteps"]
+                  }
+                },
                 metrics: {
                   type: Type.OBJECT,
                   properties: {
                     laborHoursPerWeek: { type: Type.NUMBER },
                     dollarsPerYear: { type: Type.NUMBER },
                     emailsAutomatedPerWeek: { type: Type.NUMBER },
-                    errorRateReduction: { type: Type.NUMBER }
+                    errorRateReduction: { type: Type.NUMBER },
+                    savingsPerPerson: {
+                      type: Type.OBJECT,
+                      properties: {
+                        hours: granularMetricsSchema,
+                        dollars: granularMetricsSchema
+                      },
+                      required: ["hours", "dollars"]
+                    },
+                    savingsPerTeam: {
+                      type: Type.OBJECT,
+                      properties: {
+                        hours: granularMetricsSchema,
+                        dollars: granularMetricsSchema
+                      },
+                      required: ["hours", "dollars"]
+                    },
+                    enterpriseTotal: {
+                      type: Type.OBJECT,
+                      properties: {
+                        yearOne: { type: Type.NUMBER },
+                        yearFive: { type: Type.NUMBER },
+                        yearTen: { type: Type.NUMBER }
+                      },
+                      required: ["yearOne", "yearFive", "yearTen"]
+                    }
                   },
-                  required: ["laborHoursPerWeek", "dollarsPerYear", "emailsAutomatedPerWeek", "errorRateReduction"]
+                  required: ["laborHoursPerWeek", "dollarsPerYear", "emailsAutomatedPerWeek", "errorRateReduction", "savingsPerPerson", "savingsPerTeam", "enterpriseTotal"]
                 },
                 scores: {
                   type: Type.OBJECT,
@@ -120,7 +178,7 @@ Requirements:
                 complexity: { type: Type.NUMBER },
                 impact: { type: Type.NUMBER }
               },
-              required: ["title", "description", "impacts", "problemSolved", "triggers", "inputs", "outputs", "integrations", "metrics", "platforms", "implementationSteps", "scores", "valueScore", "frictionScore", "category", "complexity", "impact"]
+              required: ["title", "description", "impacts", "problemSolved", "triggers", "inputs", "outputs", "integrations", "metrics", "forecast", "obstacles", "platforms", "implementationSteps", "scores", "valueScore", "frictionScore", "category", "complexity", "impact"]
             }
           },
           agents: {
@@ -146,9 +204,23 @@ Requirements:
                 phase: { type: Type.STRING },
                 title: { type: Type.STRING },
                 timeframe: { type: Type.STRING },
-                items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                detailedItems: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      task: { type: Type.STRING },
+                      startDateOffsetDays: { type: Type.NUMBER },
+                      durationDays: { type: Type.NUMBER },
+                      dependencies: { type: Type.ARRAY, items: { type: Type.STRING } },
+                      assignedTeam: { type: Type.STRING }
+                    },
+                    required: ["task", "startDateOffsetDays", "durationDays", "dependencies", "assignedTeam"]
+                  }
+                }
               },
-              required: ["phase", "title", "timeframe", "items"]
+              required: ["phase", "title", "timeframe", "items", "detailedItems"]
             }
           },
           prioritizationMatrix: {

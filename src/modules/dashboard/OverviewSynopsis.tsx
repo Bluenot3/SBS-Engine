@@ -1,15 +1,32 @@
 import { motion } from "motion/react";
 import { Playbook, BusinessContext } from "../../types";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell, PieChart, Pie } from "recharts";
-import { TrendingUp, Clock, Mail, DollarSign } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell, PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ScatterChart, Scatter, ZAxis, ReferenceLine } from "recharts";
+import { TrendingUp, Clock, Mail, DollarSign, Activity } from "lucide-react";
 
 type OverviewSynopsisProps = {
   playbook: Playbook;
   context: BusinessContext;
 };
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl min-w-[160px]">
+        <p className="font-medium text-[13px] text-white/90 mb-1 leading-tight">{label || payload[0]?.payload?.name || "Metric"}</p>
+        {payload.map((entry: any, index: number) => (
+          <div key={index} className="flex justify-between items-center gap-4 mt-2">
+            <span className="text-[11px] text-white/50 uppercase tracking-widest">{entry.name}</span>
+            <span className="text-[14px] font-mono text-white">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
-  const COLORS = ['#000000', '#404040', '#A3A3A3'];
+  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1'];
   const totalHours = playbook.automations.reduce((acc, curr) => acc + (curr.metrics?.laborHoursPerWeek || 0), 0);
   const totalDollars = playbook.automations.reduce((acc, curr) => acc + (curr.metrics?.dollarsPerYear || 0), 0);
   const totalEmails = playbook.automations.reduce((acc, curr) => acc + (curr.metrics?.emailsAutomatedPerWeek || 0), 0);
@@ -17,9 +34,16 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
   const chartData = playbook.automations.map(auto => ({
     name: auto.title.substring(0, 15) + "...",
     hours: auto.metrics?.laborHoursPerWeek || 0,
-    dollars: (auto.metrics?.dollarsPerYear || 0) / 1000, // in k
+    dollars: (auto.metrics?.dollarsPerYear || 0) / 1000, 
     value: auto.valueScore,
     friction: auto.frictionScore
+  }));
+
+  const scatterData = playbook.prioritizationMatrix.map(item => ({
+    name: item.title,
+    value: item.valueScore,
+    friction: item.frictionScore,
+    z: 100 // node size
   }));
 
   const valueDistribution = [
@@ -28,157 +52,181 @@ export function OverviewSynopsis({ playbook, context }: OverviewSynopsisProps) {
     { name: 'Strategic', value: playbook.automations.filter(a => a.valueScore <= 40).length },
   ];
 
+  const radarData = [
+    { subject: 'Scalability', A: 95, fullMark: 100 },
+    { subject: 'Cost Efficiency', A: 85, fullMark: 100 },
+    { subject: 'Velocity', A: Math.min(100, totalHours + 20), fullMark: 100 },
+    { subject: 'Resilience', A: 90, fullMark: 100 },
+    { subject: 'Accuracy', A: 99, fullMark: 100 },
+    { subject: 'Autonomy', A: playbook.agents.length * 20 + 30, fullMark: 100 },
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 50, damping: 20 } }
+  };
+
   return (
-    <div className="space-y-12 pb-20">
+    <motion.div 
+      variants={containerVariants} 
+      initial="hidden" 
+      animate="show" 
+      className="space-y-10 pb-20 mt-4"
+    >
       {/* High-Impact Stat Matrix */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Annual Reclaimed Capital", value: `$${(totalDollars/1000).toFixed(0)}k`, icon: DollarSign, trend: "+14.2%" },
-          { label: "Weekly Labor Capacity", value: `${totalHours}hrs`, icon: Clock, trend: "+25.8%" },
-          { label: "Agent Comms Volume", value: totalEmails, icon: Mail, trend: "99.2% Acc" },
-          { label: "Strategic Efficiency", value: "88%", icon: TrendingUp, trend: "Peak" }
+          { label: "Annual Capital", value: `$${(totalDollars/1000).toFixed(0)}k`, icon: DollarSign, trend: "+14.2%" },
+          { label: "Weekly Capacity", value: `${totalHours} hrs`, icon: Clock, trend: "+25.8%" },
+          { label: "Agent Output", value: `${totalEmails} units`, icon: Mail, trend: "99.2% Acc" },
+          { label: "Synergy Index", value: "94%", icon: Activity, trend: "Peak" }
         ].map((stat, i) => (
           <motion.div 
             key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="zen-glass p-8 rounded-[2rem] space-y-4"
+            variants={itemVariants}
+            whileHover={{ y: -5, scale: 1.02 }}
+            className="zen-glass p-8 rounded-[2rem] space-y-4 relative overflow-hidden group cursor-default"
           >
-            <div className="flex justify-between items-start">
-              <div className="w-10 h-10 rounded-2xl bg-black/5 flex items-center justify-center">
-                <stat.icon className="w-5 h-5 opacity-60" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="flex justify-between items-start relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-black/5 to-black/10 flex items-center justify-center border border-black/5 group-hover:border-black/20 transition-all">
+                <stat.icon className="w-5 h-5 text-black/70 group-hover:text-black group-hover:scale-110 transition-all" />
               </div>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">{stat.trend}</span>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full uppercase tracking-wider">{stat.trend}</span>
             </div>
-            <div>
-              <h4 className="text-[11px] font-bold text-black/40 uppercase tracking-[0.15em] mb-1">{stat.label}</h4>
-              <p className="text-3xl font-serif text-black">{stat.value}</p>
+            <div className="relative z-10 pt-2">
+              <h4 className="text-[11px] font-bold text-black/50 uppercase tracking-[0.15em] mb-1">{stat.label}</h4>
+              <p className="text-4xl font-serif text-black">{stat.value}</p>
             </div>
           </motion.div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Value vs Friction Distribution */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="zen-glass p-10 rounded-[2.5rem] relative overflow-hidden"
-        >
+        {/* Dynamic Area Chart */}
+        <motion.div variants={itemVariants} className="zen-glass p-10 rounded-[2.5rem] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
           <div className="relative z-10 space-y-8 h-full">
-            <div>
-              <h3 className="text-xl font-serif text-black mb-2">Efficiency Vector</h3>
-              <p className="text-[13px] text-black/40">Correlation of automation value versus deployment friction.</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-serif text-black mb-1">Efficiency Vector</h3>
+                <p className="text-[13px] text-black/40 font-medium">Value vs Deployment Friction Correlation</p>
+              </div>
+              <TrendingUp className="text-black/20 w-6 h-6" />
             </div>
             
-            <div className="h-[300px] w-full">
+            <div className="h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#000000" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorFriction" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', fontSize: '12px' }}
-                  />
-                  <Area type="monotone" dataKey="value" stroke="#000000" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-                  <Area type="monotone" dataKey="friction" stroke="#A3A3A3" strokeWidth={1} strokeDasharray="4 4" fill="transparent" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.5} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                  <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                  <Area type="monotone" dataKey="friction" stroke="#ef4444" strokeWidth={2} strokeDasharray="4 4" fill="url(#colorFriction)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
         </motion.div>
 
-        {/* Labor Dynamics Chart */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="zen-glass p-10 rounded-[2.5rem]"
-        >
-          <div className="space-y-8 h-full">
-            <div className="flex justify-between items-start">
+        {/* Priority Matrix Scatter */}
+        <motion.div variants={itemVariants} className="zen-glass p-10 rounded-[2.5rem] relative group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          <div className="space-y-8 h-full relative z-10">
+            <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-serif text-black mb-2">Labor Capacity Release</h3>
-                <p className="text-[13px] text-black/40">Hours reclaimed across the enterprise architecture.</p>
+                <h3 className="text-2xl font-serif text-black mb-1">Impact Matrix</h3>
+                <p className="text-[13px] text-black/40 font-medium">Actionable Intelligence Mapping</p>
               </div>
               <div className="flex gap-2">
-                 <div className="w-3 h-3 rounded-full bg-black opacity-60"></div>
-                 <div className="w-3 h-3 rounded-full bg-black opacity-20"></div>
+                 <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                 <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
               </div>
             </div>
             
-            <div className="h-[300px] w-full">
+            <div className="h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" />
-                  <XAxis dataKey="name" hide />
-                  <YAxis hide />
-                  <Tooltip 
-                    cursor={{fill: 'transparent'}}
-                    contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', fontSize: '12px' }}
-                  />
-                  <Bar dataKey="hours" radius={[10, 10, 10, 10]} barSize={24} fill="#000000" />
-                </BarChart>
+                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#000000" opacity={0.05} />
+                  <XAxis type="number" dataKey="friction" name="Friction" unit=" idx" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} domain={[0, 100]} />
+                  <YAxis type="number" dataKey="value" name="Value" unit=" pts" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#A3A3A3' }} domain={[0, 100]} />
+                  <ZAxis type="number" dataKey="z" range={[100, 300]} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#000' }} />
+                  <ReferenceLine x={50} stroke="#000000" strokeOpacity={0.1} />
+                  <ReferenceLine y={50} stroke="#000000" strokeOpacity={0.1} />
+                  <Scatter name="Intel" data={scatterData} fill="#10b981">
+                    {scatterData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Scatter>
+                </ScatterChart>
               </ResponsiveContainer>
+              {/* Matrix Labels */}
+              <div className="absolute top-[80px] left-[60px] text-[10px] font-bold text-black/20 uppercase tracking-widest -rotate-90 origin-left">High Value</div>
+              <div className="absolute bottom-[20px] right-[40px] text-[10px] font-bold text-black/20 uppercase tracking-widest">High Friction</div>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Strategic Mix Pie */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-         <motion.div 
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           className="col-span-1 zen-glass p-10 rounded-[2.5rem] flex flex-col items-center justify-center text-center space-y-6"
-         >
-            <h3 className="text-[11px] font-bold text-black/40 uppercase tracking-widest">Architectural Focus</h3>
-            <div className="h-[180px] w-[180px]">
+         {/* System Synergy Radar */}
+         <motion.div variants={itemVariants} className="col-span-1 zen-glass p-8 rounded-[2.5rem] flex flex-col space-y-6 relative group overflow-hidden">
+            <h3 className="text-[11px] font-bold text-black/50 uppercase tracking-[0.2em] mb-2 text-center w-full z-10">System Synergy</h3>
+            <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition duration-700 pointer-events-none" />
+            <div className="flex-1 min-h-[220px] w-full relative z-10">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={valueDistribution}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={8}
-                    dataKey="value"
-                  >
-                    {valueDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
+                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                  <PolarGrid stroke="#000000" strokeOpacity={0.08} />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#000000', opacity: 0.6, fontSize: 10, fontWeight: 600 }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                  <Radar name="Synergy" dataKey="A" stroke="#3b82f6" strokeWidth={2} fill="#3b82f6" fillOpacity={0.2} />
+                  <Tooltip content={<CustomTooltip />} />
+                </RadarChart>
               </ResponsiveContainer>
-            </div>
-            <div className="flex gap-6 mt-4">
-               {valueDistribution.map((d, i) => (
-                 <div key={i} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ background: COLORS[i] }} />
-                    <span className="text-[10px] font-bold text-black/40 uppercase">{d.name}</span>
-                 </div>
-               ))}
             </div>
          </motion.div>
 
-         <motion.div className="col-span-2 zen-glass p-10 rounded-[2.5rem] flex flex-col justify-center">
-            <div className="space-y-8">
-               <div className="space-y-3">
-                 <h3 className="text-2xl font-serif text-black leading-tight">National Grade Infrastructure<br/>Calibrated for {context.name}.</h3>
-                 <p className="text-[14px] text-black/50 leading-relaxed font-light">
-                   ZEN Better analyzes operational entropy at the sub-atomic level. Our proposed model for {context.industry} focuses on the elimination of low-value manual processing, re-routing human capital toward high-yield strategy.
+         {/* Executive Summary Area */}
+         <motion.div variants={itemVariants} className="col-span-2 zen-glass p-10 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute right-0 bottom-0 w-[400px] h-[400px] bg-gradient-to-t from-emerald-500/10 to-transparent blur-[80px] rounded-full pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+            <div className="space-y-8 relative z-10">
+               <div className="space-y-4">
+                 <h3 className="text-3xl font-serif text-black leading-tight tracking-tight">National Grade Infrastructure<br/><span className="text-black/50">Calibrated for {context.name}.</span></h3>
+                 <p className="text-[15px] text-black/70 leading-relaxed font-light max-w-2xl">
+                   ZEN Better analyzes operational entropy at the sub-atomic level. Our proposed model for the {context.industry} sector focuses on the absolute elimination of low-value manual processing, seamlessly re-routing human capital toward high-yield cognitive strategy and exponential growth.
                  </p>
                </div>
-               <div className="flex gap-4">
-                  <button className="px-6 py-3 rounded-full bg-black text-white text-[12px] font-medium tracking-wide shadow-lg">View Detailed Steps</button>
-                  <button className="px-6 py-3 rounded-full border border-black/10 text-black text-[12px] font-medium tracking-wide">Download Full PDF</button>
+               <div className="flex flex-wrap gap-4 pt-2">
+                  <button className="px-8 py-4 rounded-full bg-black text-white text-[13px] font-medium tracking-wide shadow-xl shadow-black/20 hover:scale-105 active:scale-95 transition-all">
+                    Initiate Deployment
+                  </button>
+                  <button className="px-8 py-4 rounded-full bg-white/50 border border-black/10 text-black text-[13px] font-medium tracking-wide hover:bg-white hover:shadow-lg transition-all">
+                    Export Executive PDF
+                  </button>
                </div>
             </div>
          </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
